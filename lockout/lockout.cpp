@@ -123,7 +123,7 @@ bool PlayGame(int Difficulty, int Max)
 int main()
 {
 	system("CLS"); // We'll start with a fresh looking console
-	srand(time(NULL)); // Create a new random sequence based on the time of day
+	srand((unsigned int)time(NULL)); // Create a new random sequence based on the time of day
 
 	int LevelDifficulty = 1;
 	int MaxDifficulty = UserDefinedDifficulty();
