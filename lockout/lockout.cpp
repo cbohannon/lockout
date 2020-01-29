@@ -9,9 +9,24 @@ namespace Print
 	bool InitialPrint = false;
 }
 
+void SeedRand()
+{
+	srand((unsigned int)time(NULL)); // Create a new random sequence based on the time of day
+}
+
+HANDLE ConsoleTexthandle()
+{
+	HANDLE ConsoleHandle;
+
+	return ConsoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+}
+
 int UserDefinedDifficulty()
 {
 	int Difficulty = 0;
+
+	HANDLE DifficultyHandle = ConsoleTexthandle();
+	SetConsoleTextAttribute(DifficultyHandle, 15); // White
 
 	std::cout << "Enter a number 1 - 5 for level difficulty or 0 to quit.\n";
 	std::cout << "Difficulty: ";
@@ -22,14 +37,13 @@ int UserDefinedDifficulty()
 
 void PrintIntroduction(int Difficulty)
 {
-	HANDLE ConsoleHandle;
-	ConsoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+	HANDLE IntroHandle = ConsoleTexthandle();
 
 	// Print the welcome message to the terminal with a little color added
 	std::cout << "\n\nYou can't get into the emergency shelter because you are ";
-	SetConsoleTextAttribute(ConsoleHandle, 14); // Yellow
+	SetConsoleTextAttribute(IntroHandle, 14); // Yellow
 	std::cout << "LEVEL " << Difficulty;
-	SetConsoleTextAttribute(ConsoleHandle, 15); // White (default color)
+	SetConsoleTextAttribute(IntroHandle, 15); // White
 	std::cout << " locked out.";
 	std::cout << "\nSo, you'll need to enter the correct codes to get in AND the codes become more difficult as the level increases.";
 	std::cout << "\nEnter each digit of the code with a space in between (e.g., 1 2 5) and then hit the enter key to see if you are correct!";
@@ -85,31 +99,20 @@ bool PlayGame(int Difficulty, int Max)
 			}
 		}
 
-		// TODO: This if statement needs to be changed to a switch
-		if (Difficulty == 1)
+		switch (Difficulty)
 		{
-			std::cout << "\nYea!!! Almost there...you are now at level: " << Difficulty + 1;
-			Print::InitialPrint = true;
-			return true;
+		case 1: std::cout << "\nYea!!! Almost there...you are now at level: " << Difficulty + 1;
+			break;
+		case 2: std::cout << "\nGetting closer...you are now at level: " << Difficulty + 1;
+			break;
+		case 3: std::cout << "\nSo close...you are now at level: " << Difficulty + 1;
+			break;
+		default: std::cout << "\nThis is really getting hard but you are right there...you are now at level: " << Difficulty + 1;
+			break;
 		}
-		else if (Difficulty == 2)
-		{
-			std::cout << "\nGetting closer...you are now at level: " << Difficulty + 1;
-			Print::InitialPrint = true;
-			return true;
-		}
-		else if (Difficulty == 3)
-		{
-			std::cout << "\nSo close...you are now at level: " << Difficulty + 1;
-			Print::InitialPrint = true;
-			return true;
-		}
-		else
-		{
-			std::cout << "\nThis is really getting hard but you are right there...you are now at level: " << Difficulty + 1;
-			Print::InitialPrint = true;
-			return true;
-		}
+
+		Print::InitialPrint = true;
+		return true;
 	}
 	else
 	{
@@ -119,20 +122,14 @@ bool PlayGame(int Difficulty, int Max)
 	}
 }
 
-// TODO: main() is too large and I need to make at least two new functions 
-int main()
+void PrepGame()
 {
-	system("CLS"); // We'll start with a fresh looking console
-	srand((unsigned int)time(NULL)); // Create a new random sequence based on the time of day
-
 	int LevelDifficulty = 1;
 	int MaxDifficulty = UserDefinedDifficulty();
 
 	if (MaxDifficulty == 0)
 	{
 		std::cout << "\nGoodbye!!!\n";
-
-		return 0;
 	}
 	else
 	{
@@ -150,6 +147,13 @@ int main()
 
 		std::cout << "\nYou made it inside!!!\n";
 	}
+}
+
+int main()
+{
+	system("CLS"); // We'll start with a fresh looking console	
+	SeedRand();
+	PrepGame();
 
 	return 0;
 }
