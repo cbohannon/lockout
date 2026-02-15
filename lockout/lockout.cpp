@@ -1,7 +1,6 @@
 #include "pch.h"
 #include <windows.h>
 #include <iostream>
-#include <stdlib.h>
 #include <ctime>
 
 namespace Print
@@ -16,9 +15,7 @@ void SeedRand()
 
 HANDLE ConsoleTexthandle()
 {
-	HANDLE ConsoleHandle;
-
-	return ConsoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+	return GetStdHandle(STD_OUTPUT_HANDLE);
 }
 
 int UserDefinedDifficulty()
@@ -28,9 +25,26 @@ int UserDefinedDifficulty()
 	HANDLE DifficultyHandle = ConsoleTexthandle();
 	SetConsoleTextAttribute(DifficultyHandle, 15); // White
 
-	std::cout << "Enter a number 1 - 5 for level difficulty or 0 to quit.\n";
-	std::cout << "Difficulty: ";
-	std::cin >> Difficulty;
+	while (true)
+	{
+		std::cout << "Enter a number 1 - 5 for level difficulty or 0 to quit.\n";
+		std::cout << "Difficulty: ";
+
+		if (!(std::cin >> Difficulty))
+		{
+			std::cin.clear();
+			std::cin.ignore(10000, '\n');
+			std::cout << "Invalid input. Please enter a number.\n\n";
+			continue;
+		}
+
+		if (Difficulty >= 0 && Difficulty <= 5)
+		{
+			break;
+		}
+
+		std::cout << "Please enter a number between 0 and 5.\n\n";
+	}
 
 	return Difficulty;
 }
@@ -62,10 +76,12 @@ bool PlayGame(int Difficulty, int Max)
 	const int CodeB = rand() % Difficulty + Difficulty;
 	const int CodeC = rand() % Difficulty + Difficulty;
 
-	// Used for testing purposes 
+#ifdef _DEBUG
+	// Used for testing purposes
 	std::cout << std::endl;
 	std::cout << "Debug: " << CodeA << CodeB << CodeC;
 	std::cout << std::endl;
+#endif
 
 	const int CodeSum = CodeA + CodeB + CodeC;
 	const int CodeProduct = CodeA * CodeB * CodeC;
@@ -82,7 +98,7 @@ bool PlayGame(int Difficulty, int Max)
 	int GuessSum = GuessA + GuessB + GuessC;
 	int GuessProduct = GuessA * GuessB * GuessC;
 
-	// Check if the players guess is correct
+	// Check if the players guess is correct 
 	if (GuessSum == CodeSum && GuessProduct == CodeProduct)
 	{
 		if (Difficulty == Max)
@@ -151,7 +167,16 @@ void PrepGame()
 
 int main()
 {
-	system("CLS"); // We'll start with a fresh looking console	
+	// Clear the console using the Windows API
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	GetConsoleScreenBufferInfo(hConsole, &csbi);
+	DWORD cellCount = csbi.dwSize.X * csbi.dwSize.Y;
+	DWORD written;
+	COORD homeCoord = { 0, 0 };
+	FillConsoleOutputCharacter(hConsole, ' ', cellCount, homeCoord, &written);
+	FillConsoleOutputAttribute(hConsole, csbi.wAttributes, cellCount, homeCoord, &written);
+	SetConsoleCursorPosition(hConsole, homeCoord);
 	SeedRand();
 	PrepGame();
 
